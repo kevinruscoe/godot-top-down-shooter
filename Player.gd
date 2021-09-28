@@ -31,9 +31,9 @@ func handle_weapons():
 		
 		var bullet = BULLET_SCENE.instance()
 		get_parent().add_child(bullet)
-		bullet.set_position(position)
+
 		bullet.set_accuracy(1)
-		bullet.fire()
+		bullet.fire(position)
 		
 func handle_movement(delta):
 	var axis = get_input_axis()

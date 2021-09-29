@@ -27,15 +27,15 @@ func apply_movement(acceleration):
 	velocity = velocity.clamped(MAX_SPEED)
 
 func handle_weapons():
-	if Input.is_action_just_pressed("ui_accept"):
-		
+	if Input.is_action_just_pressed("ui_shoot"):
 		var bullet = BULLET_SCENE.instance()
 		get_parent().add_child(bullet)
-
-		bullet.set_accuracy(1)
-		bullet.fire(position)
+		bullet.set_accuracy(0)
+		bullet.fire($Muzzle.global_position)
 		
 func handle_movement(delta):
+	look_at(get_global_mouse_position())
+
 	var axis = get_input_axis()
 	
 	if axis == Vector2.ZERO:

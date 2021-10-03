@@ -19,10 +19,6 @@ func apply_decceleration(amount):
 		
 func apply_acceleration(acceleration):
 	velocity += acceleration
-
-func handle_weapons():
-	if Input.is_action_just_pressed("ui_shoot"):
-		$Gun.shoot();
 		
 func handle_movement(delta):
 	var axis = get_input_axis()
@@ -37,5 +33,4 @@ func handle_movement(delta):
 	move_and_slide(velocity)
 	
 func _physics_process(delta):
-	handle_weapons()
 	handle_movement(delta)

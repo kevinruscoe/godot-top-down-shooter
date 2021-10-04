@@ -2,82 +2,89 @@ extends Node2D
 
 var BULLET_SCENE = preload("res://Scenes/Bullet.tscn")
 
-var accuracy: float = 0.1
-var spread: Vector2 = Vector2(400, 50)
+var accuracy: float = 1.0 #todo getset
+var spread: Vector2 = Vector2(400, 20) #todo getset
 
-var reload_time: float = 1.0
-var reload_timer: float = 0.0
-var is_reloading: bool = false
+var reload_duration: float = 1.0 #todo getset
+var reload_timer: Timer
 
-var ammo: int = 10
-var clip_size: int = ammo
+var ammo: int = 50 #todo getset
+var clip_size: int = ammo #todo getset
 
-var shoot_mode: int = shoot_modes.SEMIAUTO
-enum shoot_modes {ONE_SHOT, SEMIAUTO}
+var number_of_projectiles_per_shot: int = 1 #todo getset
+var bullet_max_distance: float = 500.0 #todo getset
+var bullet_speed: int = 800 #todo getset
+var bullets_per_second: float = 10.0 #todo getset
+var bullet_timer: Timer
 
-var draw_debug_cone: bool = true
-var debug_cone: PoolVector2Array
+var debug: bool = true
+var debug_cone: Polygon2D
 
-func calculated_debug_cone():
-
-	self.debug_cone.append($Muzzle.position)
+func _ready():
+	self.reload_timer = Timer.new()
+	self.reload_timer.set_one_shot(true)
+	self.reload_timer.set_wait_time(reload_duration)
+	self.add_child(self.reload_timer)
 	
-	var _min:Vector2 = $Muzzle.position
-	_min.x += spread.x
-	_min.y += spread.y
-	self.debug_cone.append(_min)
-	
-	var _max:Vector2 = $Muzzle.position
-	_max.x += spread.x
-	_max.y -= spread.y
-	self.debug_cone.append(_max)
-
-	self.debug_cone.append($Muzzle.position)
-
-	return self.debug_cone
+	self.bullet_timer = Timer.new()
+	self.bullet_timer.set_one_shot(true)
+	self.bullet_timer.set_wait_time(bullets_per_second)
+	self.add_child(self.bullet_timer)
 
 func _process(delta):
-	if self.draw_debug_cone:
-		$Polygon2D.set_polygon(self.calculated_debug_cone())
-		$Polygon2D.set_color(Color(1, 1, 1, .1))
+	self.draw_debugs()
+	self.track_reload_lock()
 
-	if shoot_mode == shoot_modes.ONE_SHOT:
-		if Input.is_action_just_pressed("ui_shoot"):
-			self.shoot()
-
-	if shoot_mode == shoot_modes.SEMIAUTO:
-		if Input.is_action_pressed("ui_shoot"):
-			self.shoot()
-
-	self.track_reload_lock(delta)
+	if Input.is_action_pressed("ui_shoot"):
+		self.shoot()
 
 	look_at(get_global_mouse_position())
 
-func track_reload_lock(delta):
-	if self.is_reloading:
-		if self.reload_timer <= 0:
-			self.reload_timer = 0.0
-			self.ammo = self.clip_size
-			self.is_reloading = false
-			$ColorRect.color = Color(1, 1, 1, 1)
-		self.reload_timer -= delta
+func draw_debugs():
+	if not self.debug_cone:
+		self.debug_cone = Polygon2D.new()
+		self.debug_cone.set_color(Color(1, 1, 1, .1))
+		self.add_child(self.debug_cone)
 
-func reload():
-	self.is_reloading = true
-	$ColorRect.color = Color(0, 0, 0, 1)
-	self.reload_timer = self.reload_time
+	if self.debug_cone:
+		var cone: PoolVector2Array = PoolVector2Array();
+		cone.append(self.get_node("Muzzle").position)
+	
+		var upper_point:Vector2 = self.get_node("Muzzle").position
+		upper_point.x += spread.x
+		upper_point.y += spread.y
+		cone.append(upper_point)
+		
+		var lower_point:Vector2 = self.get_node("Muzzle").position
+		lower_point.x += spread.x
+		lower_point.y -= spread.y
+		cone.append(lower_point)
 
-func reduce_ammo(amount):
-	self.ammo -= amount
-	if self.ammo <= 0:
-		self.reload()
+		cone.append(self.get_node("Muzzle").position)
+		
+		self.debug_cone.set_polygon(cone)
+	
+func track_reload_lock():
+	if self.reload_timer.is_stopped() and self.ammo == 0:
+		self.ammo = self.clip_size
 
 func shoot():
-	if not self.is_reloading:
+	# if were reloading or throttled by bullet count, bail
+	if not self.reload_timer.is_stopped() or not self.bullet_timer.is_stopped():
+		return
 
-		self.reduce_ammo(1)
+	# reload, start reload timer
+	self.ammo -= 1
+	if self.ammo <= 0:
+		self.reload_timer.start(reload_duration)
 
-		var fire_from: Vector2 = $Muzzle.global_position
+	# throttle bullet count
+	self.bullet_timer.start(100 / bullets_per_second / 100)
+
+	# handle bullet spawn, and target
+	var fire_from: Vector2 = self.get_node("Muzzle").global_position
+
+	for projectile in number_of_projectiles_per_shot:
 		var fire_to: Vector2 = get_global_mouse_position()
 		
 		# spread and accuracy effects where a bullet could hit
@@ -94,11 +101,21 @@ func shoot():
 		# accuracy dependant
 		var spread_negator = self.spread.y - self.spread.y * self.accuracy
 		
-		bullet_velocity.x = rand_range(bullet_velocity.x - spread_negator, bullet_velocity.x + spread_negator)
-		bullet_velocity.y = rand_range(bullet_velocity.y - spread_negator, bullet_velocity.y + spread_negator)
+		bullet_velocity.x = rand_range(
+			bullet_velocity.x - spread_negator, 
+			bullet_velocity.x + spread_negator
+		)
+		bullet_velocity.y = rand_range(
+			bullet_velocity.y - spread_negator,
+			bullet_velocity.y + spread_negator
+		)
 		
 		bullet_velocity = bullet_velocity.normalized()
 		
 		var bullet = BULLET_SCENE.instance()
 		self.get_node("/root").add_child(bullet)
-		bullet.fire(fire_from, bullet_velocity)
+		bullet.set_speed(self.bullet_speed)
+		bullet.set_velocity(bullet_velocity)
+		bullet.set_position(fire_from)
+		bullet.set_max_distance(self.bullet_max_distance)
+		bullet.fire()

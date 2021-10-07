@@ -117,7 +117,11 @@ func _shoot():
 		bullet_velocity = bullet_velocity.normalized()
 
 		# TODO: find the opposite bullet velocity to kickback
+		# this might work????
+		# player_velocity = player_velocity + (bullet_velocity * -1)
 		# player.set_velocity(player_velocity)
+		# or
+		# player_velocity = player_velocity + (bullet_velocity * Vector2(-1, -1))
 		
 		var bullet = BulletScene.instance()
 		self.get_node("/root").add_child(bullet)

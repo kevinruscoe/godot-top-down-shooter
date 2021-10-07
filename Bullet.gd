@@ -3,25 +3,25 @@ extends Node2D
 var velocity: Vector2 = Vector2.ZERO setget set_velocity, get_velocity
 var speed: float = 500.0 setget set_speed, get_speed
 var max_distance: float = 400.0 setget set_max_distance, get_max_distance
-var initial_position: Vector2 = Vector2.ZERO
 
-var color: Color
-var fired: bool = false
+var _color: Color setget
+var _is_fired: bool = false
+var _initial_position: Vector2 = Vector2.ZERO
 
 func _ready():
-	self.color = Color(rand_range(0, 1), rand_range(0, 1), rand_range(0, 1), 1)
-	set_modulate(color)
+	self._color = Color(rand_range(0, 1), rand_range(0, 1), rand_range(0, 1), 1)
+	set_modulate(self._color)
 
 func _physics_process(delta):
-	if self.fired:
-		self.set_position(get_position() + (get_velocity() * delta * get_speed()))
+	if self._is_fired:
+		self.set_position(self.get_position() + (self.get_velocity() * delta * self.get_speed()))
 
-		if initial_position.distance_to(get_position()) > self.get_max_distance():
+		if self._initial_position.distance_to(self.get_position()) > self.get_max_distance():
 			queue_free()
 
 func fire():
-	self.initial_position = self.get_position()
-	self.fired = true
+	self._initial_position = self.get_position()
+	self._is_fired = true
 
 func get_max_distance():
 	return max_distance

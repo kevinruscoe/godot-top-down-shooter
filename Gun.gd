@@ -10,13 +10,14 @@ var clip_size: int = 10 setget set_clip_size, get_clip_size
 var projectiles_per_shot: int = 1.0 setget set_projectiles_per_shot, get_projectiles_per_shot
 var projectile_speed: int = 800 setget set_projectile_speed, get_projectile_speed
 var shots_per_second: float = 10.0 setget set_shots_per_second, get_shots_per_second
-var kickback: float = 300.0 setget set_kickback, get_kickback
+var kickback: float = 200.0 setget set_kickback, get_kickback
 
 var _reload_timer: Timer
 var _bullet_timer: Timer
 var _should_show_target_cone: bool = true
 var _target_cone: Polygon2D
 var _target_cone_vectors: PoolVector2Array
+onready var _player = get_parent()
 
 func _ready():
 	self._reload_timer = Timer.new()
@@ -84,11 +85,6 @@ func _shoot():
 	var bullet_position: Vector2 = self.get_node("Muzzle").global_position
 	var mouse_position: Vector2 = get_global_mouse_position()
 
-	# apply kickback
-	var player = self.get_parent()
-	var player_velocity: Vector2 = player.get_velocity()
-	# player_velocity.x -= self.get_kickback()
-
 	for projectile in self.get_projectiles_per_shot():
 
 		# spread and accuracy effects where a bullet could hit
@@ -116,13 +112,9 @@ func _shoot():
 		
 		bullet_velocity = bullet_velocity.normalized()
 
-		# TODO: find the opposite bullet velocity to kickback
-		# this might work????
-		# player_velocity = player_velocity + (bullet_velocity * -1)
-		# player.set_velocity(player_velocity)
-		# or
-		# player_velocity = player_velocity + (bullet_velocity * Vector2(-1, -1))
-		
+		# apply knockback
+		_player.set_velocity(_player.get_velocity() + (bullet_velocity * -1) * self.get_kickback())
+
 		var bullet = BulletScene.instance()
 		self.get_node("/root").add_child(bullet)
 		bullet.set_speed(self.get_projectile_speed())

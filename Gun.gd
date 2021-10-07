@@ -5,29 +5,29 @@ const BulletScene = preload("res://Scenes/Bullet.tscn")
 var accuracy: float = 1.0 setget set_accuracy, get_accuracy
 var spread: Vector2 = Vector2(400, 20) setget set_spread, get_spread
 var reload_duration: float = 1.0 setget set_reload_duration, get_reload_duration
-var reload_timer: Timer setget set_reload_timer, get_reload_timer
 var ammo: int = 10 setget set_ammo, get_ammo
 var clip_size: int = 10 setget set_clip_size, get_clip_size
 var projectiles_per_bullet: int = 1.0 setget set_projectiles_per_bullet, get_projectiles_per_bullet
 var bullet_max_distance: float = 500.0 setget set_bullet_max_distance, get_bullet_max_distance
 var bullet_speed: int = 800 setget set_bullet_speed, get_bullet_speed
 var bullets_per_second: float = 10.0 setget set_bullets_per_second, get_bullets_per_second
-var bullet_timer: Timer setget set_bullet_timer, get_bullet_timer
 
+var _reload_timer: Timer
+var _bullet_timer: Timer
 var _should_show_target_cone: bool = true
 var _target_cone: Polygon2D
 var _target_cone_vectors: PoolVector2Array
 
 func _ready():
-	self.set_reload_timer(Timer.new())
-	self.get_reload_timer().set_one_shot(true)
-	self.get_reload_timer().set_wait_time(self.get_reload_duration())
-	self.add_child(self.get_reload_timer())
+	self._reload_timer = Timer.new()
+	self._reload_timer.set_one_shot(true)
+	self._reload_timer.set_wait_time(self.get_reload_duration())
+	self.add_child(self._reload_timer)
 	
-	self.set_bullet_timer(Timer.new())
-	self.get_bullet_timer().set_one_shot(true)
-	self.get_bullet_timer().set_wait_time(self.get_bullets_per_second())
-	self.add_child(self.get_bullet_timer())
+	self._bullet_timer = Timer.new()
+	self._bullet_timer.set_one_shot(true)
+	self._bullet_timer.set_wait_time(self.get_bullets_per_second())
+	self.add_child(self._bullet_timer)
 
 func _process(delta):
 	self._draw_target_cone()
@@ -64,21 +64,21 @@ func _draw_target_cone():
 		self._target_cone.set_polygon(self._target_cone_vectors)
 	
 func _track_reload_lock():
-	if self.get_reload_timer().is_stopped() and self.get_ammo() == 0:
+	if self._reload_timer.is_stopped() and self.get_ammo() == 0:
 		self.set_ammo(self.get_clip_size())
 
 func _shoot():
 	# if were reloading or throttled by bullet count, bail
-	if not self.get_reload_timer().is_stopped() or not self.bullet_timer.is_stopped():
+	if not self._reload_timer.is_stopped() or not self._bullet_timer.is_stopped():
 		return
 
 	# reload, start reload timer
 	self.set_ammo(self.get_ammo() - 1)
 	if self.get_ammo() <= 0:
-		self.get_reload_timer().start(self.get_reload_duration())
+		self._reload_timer.start(self.get_reload_duration())
 
 	# throttle bullet count
-	self.get_bullet_timer().start(100 / self.get_bullets_per_second() / 100)
+	self._bullet_timer.start(100 / self.get_bullets_per_second() / 100)
 
 	# handle bullet spawn, and target
 	var bullet_position: Vector2 = self.get_node("Muzzle").global_position
@@ -172,15 +172,3 @@ func set_bullets_per_second(value):
 	
 func get_bullets_per_second():
 	return bullets_per_second
-
-func set_reload_timer(value):
-	reload_timer = value
-	
-func get_reload_timer():
-	return reload_timer
-
-func set_bullet_timer(value):
-	bullet_timer = value
-	
-func get_bullet_timer():
-	return bullet_timer

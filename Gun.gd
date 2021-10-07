@@ -7,10 +7,9 @@ var spread: Vector2 = Vector2(400, 20) setget set_spread, get_spread
 var reload_duration: float = 1.0 setget set_reload_duration, get_reload_duration
 var ammo: int = 10 setget set_ammo, get_ammo
 var clip_size: int = 10 setget set_clip_size, get_clip_size
-var projectiles_per_bullet: int = 1.0 setget set_projectiles_per_bullet, get_projectiles_per_bullet
-var bullet_max_distance: float = 500.0 setget set_bullet_max_distance, get_bullet_max_distance
-var bullet_speed: int = 800 setget set_bullet_speed, get_bullet_speed
-var bullets_per_second: float = 10.0 setget set_bullets_per_second, get_bullets_per_second
+var projectiles_per_shot: int = 1.0 setget set_projectiles_per_shot, get_projectiles_per_shot
+var projectile_speed: int = 800 setget set_projectile_speed, get_projectile_speed
+var shots_per_second: float = 10.0 setget set_shots_per_second, get_shots_per_second
 
 var _reload_timer: Timer
 var _bullet_timer: Timer
@@ -26,7 +25,7 @@ func _ready():
 	
 	self._bullet_timer = Timer.new()
 	self._bullet_timer.set_one_shot(true)
-	self._bullet_timer.set_wait_time(self.get_bullets_per_second())
+	self._bullet_timer.set_wait_time(self.get_shots_per_second())
 	self.add_child(self._bullet_timer)
 
 func _process(delta):
@@ -78,13 +77,13 @@ func _shoot():
 		self._reload_timer.start(self.get_reload_duration())
 
 	# throttle bullet count
-	self._bullet_timer.start(100 / self.get_bullets_per_second() / 100)
+	self._bullet_timer.start(100 / self.get_shots_per_second() / 100)
 
 	# handle bullet spawn, and target
 	var bullet_position: Vector2 = self.get_node("Muzzle").global_position
 	var mouse_position: Vector2 = get_global_mouse_position()
 
-	for projectile in self.get_projectiles_per_bullet():
+	for projectile in self.get_projectiles_per_shot():
 
 		# spread and accuracy effects where a bullet could hit
 		# so we get the clicked positon, and tweak its position
@@ -113,10 +112,10 @@ func _shoot():
 		
 		var bullet = BulletScene.instance()
 		self.get_node("/root").add_child(bullet)
-		bullet.set_speed(self.get_bullet_speed())
+		bullet.set_speed(self.get_projectile_speed())
 		bullet.set_velocity(bullet_velocity)
 		bullet.set_position(bullet_position)
-		bullet.set_max_distance(self.get_bullet_max_distance())
+		bullet.set_max_distance(self.get_spread().x)
 		bullet.fire()
 
 func set_accuracy(value):
@@ -149,26 +148,20 @@ func set_clip_size(value):
 func get_clip_size():
 	return clip_size
 
-func set_projectiles_per_bullet(value):
-	projectiles_per_bullet = value
+func set_projectiles_per_shot(value):
+	projectiles_per_shot = value
 	
-func get_projectiles_per_bullet():
-	return projectiles_per_bullet
+func get_projectiles_per_shot():
+	return projectiles_per_shot
 
-func set_bullet_max_distance(value):
-	bullet_max_distance = value
+func set_projectile_speed(value):
+	projectile_speed = value
 	
-func get_bullet_max_distance():
-	return bullet_max_distance
+func get_projectile_speed():
+	return projectile_speed
 
-func set_bullet_speed(value):
-	bullet_speed = value
+func set_shots_per_second(value):
+	shots_per_second = value
 	
-func get_bullet_speed():
-	return bullet_speed
-
-func set_bullets_per_second(value):
-	bullets_per_second = value
-	
-func get_bullets_per_second():
-	return bullets_per_second
+func get_shots_per_second():
+	return shots_per_second

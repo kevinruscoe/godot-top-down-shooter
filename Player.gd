@@ -7,9 +7,8 @@ var velocity: Vector2 = Vector2.ZERO setget set_velocity, get_velocity
 func _ready():
 	# semi
 	$Gun.set_spread(Vector2(400, 30))
-	$Gun.set_bullet_max_distance($Gun.get_spread().x)
 	$Gun.set_accuracy(0.6)
-	$Gun.set_bullets_per_second(10)
+	$Gun.set_shots_per_second(10)
 	$Gun.set_clip_size(60)
 	$Gun.set_ammo($Gun.get_clip_size())
 	$Gun.set_reload_duration(4.0)
@@ -17,7 +16,7 @@ func _ready():
 	# pistol
 	# $Gun.set_spread(Vector2(600, 20))
 	# $Gun.set_accuracy(0.9)
-	# $Gun.set_bullets_per_second(1)
+	# $Gun.set_shots_per_second(1)
 	# $Gun.set_clip_size(8)
 	# $Gun.set_ammo($Gun.get_clip_size())
 	# $Gun.set_reload_duration(2.0)
@@ -25,8 +24,8 @@ func _ready():
 	# shotgun
 	# $Gun.set_spread(Vector2(100, 30))
 	# $Gun.set_accuracy(0)
-	# $Gun.set_bullets_per_second(1)
-	# $Gun.set_number_of_projectiles_per_shot(6)
+	# $Gun.set_shots_per_second(1)
+	# $Gun.set_projectiles_per_shot(6)
 	# $Gun.set_clip_size(2)
 	# $Gun.set_ammo($Gun.get_clip_size())
 	# $Gun.set_reload_duration(5.0)

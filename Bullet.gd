@@ -4,7 +4,7 @@ var velocity: Vector2 = Vector2.ZERO setget set_velocity, get_velocity
 var speed: float = 500.0 setget set_speed, get_speed
 var max_distance: float = 400.0 setget set_max_distance, get_max_distance
 
-var _color: Color setget
+var _color: Color
 var _is_fired: bool = false
 var _initial_position: Vector2 = Vector2.ZERO
 

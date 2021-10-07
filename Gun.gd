@@ -47,25 +47,25 @@ func _draw_target_cone():
 
 		self._target_cone_vectors = PoolVector2Array();
 
-		target_cone_vectors.append(self.get_node("Muzzle").position)
+		self._target_cone_vectors.append(self.get_node("Muzzle").position)
 	
 		var upper_point:Vector2 = self.get_node("Muzzle").position
 		upper_point.x += self.get_spread().x
 		upper_point.y += self.get_spread().y
-		target_cone_vectors.append(upper_point)
+		self._target_cone_vectors.append(upper_point)
 		
 		var lower_point:Vector2 = self.get_node("Muzzle").position
 		lower_point.x += self.get_spread().x
 		lower_point.y -= self.get_spread().y
-		target_cone_vectors.append(lower_point)
+		self._target_cone_vectors.append(lower_point)
 
-		target_cone_vectors.append(self.get_node("Muzzle").position)
+		self._target_cone_vectors.append(self.get_node("Muzzle").position)
 		
-		self._target_cone.set_polygon(target_cone_vectors)
+		self._target_cone.set_polygon(self._target_cone_vectors)
 	
 func _track_reload_lock():
 	if self.get_reload_timer().is_stopped() and self.get_ammo() == 0:
-		self.get_ammo() = self.get_clip_size()
+		self.set_ammo(self.get_clip_size())
 
 func _shoot():
 	# if were reloading or throttled by bullet count, bail
@@ -184,15 +184,3 @@ func set_bullet_timer(value):
 	
 func get_bullet_timer():
 	return bullet_timer
-
-func set_bullet_timer(value):
-	bullet_timer = value
-	
-func get_bullet_timer():
-	return bullet_timer
-
-func set_should_show_target_cone(value):
-	should_show_target_cone = value
-	
-func is_should_show_target_cone():
-	return should_show_target_cone

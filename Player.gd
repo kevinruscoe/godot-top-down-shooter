@@ -4,33 +4,32 @@ var speed: int = 500
 var acceleration: int = 2000
 var velocity: Vector2 = Vector2.ZERO
 
-
 func _ready():
 	# semi
-	$Gun.spread = Vector2(400, 30)
-	$Gun.bullet_max_distance = $Gun.spread.x
-	$Gun.accuracy = 0.6
-	$Gun.bullets_per_second = 10
-	$Gun.clip_size = 60
-	$Gun.ammo = $Gun.clip_size
-	$Gun.reload_duration = 4.0
+	$Gun.set_spread(Vector2(400, 30))
+	$Gun.set_bullet_max_distance($Gun.get_spread().x)
+	$Gun.set_accuracy(0.6)
+	$Gun.set_bullets_per_second(10)
+	$Gun.set_clip_size(60)
+	$Gun.set_ammo($Gun.get_clip_size())
+	$Gun.set_reload_duration(4.0)
 
 	# pistol
-	# $Gun.spread = Vector2(600, 20)
-	# $Gun.accuracy = 0.9
-	# $Gun.bullets_per_second = 1
-	# $Gun.clip_size = 8
-	# $Gun.ammo = $Gun.clip_size
-	# $Gun.reload_duration = 2.0
+	# $Gun.set_spread(Vector2(600, 20))
+	# $Gun.set_accuracy(0.9)
+	# $Gun.set_bullets_per_second(1)
+	# $Gun.set_clip_size(8)
+	# $Gun.set_ammo($Gun.get_clip_size())
+	# $Gun.set_reload_duration(2.0)
 
 	# shotgun
-	# $Gun.spread = Vector2(100, 30)
-	# $Gun.accuracy = 0
-	# $Gun.bullets_per_second = 1
-	# $Gun.number_of_projectiles_per_shot = 6
-	# $Gun.clip_size = 2
-	# $Gun.ammo = $Gun.clip_size
-	# $Gun.reload_duration = 5.0
+	# $Gun.set_spread(Vector2(100, 30))
+	# $Gun.set_accuracy(0)
+	# $Gun.set_bullets_per_second(1)
+	# $Gun.set_number_of_projectiles_per_shot(6)
+	# $Gun.set_clip_size(2)
+	# $Gun.set_ammo($Gun.get_clip_size())
+	# $Gun.set_reload_duration(5.0)
 
 func _physics_process(delta):
 	self.handle_movement(delta)
@@ -41,14 +40,14 @@ func get_input_axis():
 		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	).normalized()
 	
-func apply_deceleration(amount):
-	if self.velocity.length() > amount:
-		self.velocity -= self.velocity.normalized() * amount
+func apply_deceleration(value):
+	if self.velocity.length() > value:
+		self.velocity -= self.velocity.normalized() * value
 	else:
 		self.velocity = Vector2.ZERO
 		
-func apply_acceleration(amount):
-	self.velocity += amount
+func apply_acceleration(value):
+	self.velocity += value
 		
 func handle_movement(delta):
 	var axis = self.get_input_axis()

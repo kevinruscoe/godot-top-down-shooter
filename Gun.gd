@@ -18,6 +18,7 @@ var _should_show_target_cone: bool = true
 var _target_cone: Polygon2D
 var _target_cone_vectors: PoolVector2Array
 onready var _player = get_parent()
+onready var _ammo_label: RichTextLabel = _player.get_node("Camera2D/AmmoLabel")
 
 enum GunTypes {PISTOL, SEMI_AUTO, SHOTGUN}
 
@@ -69,6 +70,9 @@ func _draw_target_cone():
 		self._target_cone.set_polygon(self._target_cone_vectors)
 	
 func _track_reload_lock():
+	if not self._reload_timer.is_stopped():
+		self._ammo_label.text = "Reloading... (" + String(self._reload_timer.time_left) + ")"
+				
 	if self._reload_timer.is_stopped() and self.get_ammo() == 0:
 		self.set_ammo(self.get_clip_size())
 
@@ -117,7 +121,8 @@ func _shoot():
 		bullet_velocity = bullet_velocity.normalized()
 
 		# apply knockback
-		_player.set_velocity(_player.get_velocity() + (bullet_velocity * -1) * self.get_kickback())
+		self._player.set_velocity(_player.get_velocity() + (bullet_velocity * -1) * self.get_kickback())
+		self._ammo_label.text = String(self.get_ammo())
 
 		var bullet = BulletScene.instance()
 		self.get_node("/root").add_child(bullet)

@@ -47,6 +47,6 @@ func get_speed():
 func set_speed(value):
 	speed = value
 
-func _on_Area2D_area_entered(area):
-	if area.name == "TestEnemy":
-		area.set_health(area.get_health() - 10)
+func _on_Area2D_body_entered(body):
+	if body.is_in_group("Enemy"):
+		body.take_damage(10)

@@ -23,7 +23,18 @@ __meta__ = {
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
+limit_smoothed = true
 smoothing_enabled = true
-smoothing_speed = 1.0
+smoothing_speed = 10.0
+
+[node name="AmmoLabel" type="RichTextLabel" parent="Camera2D"]
+margin_left = -479.0
+margin_top = -273.0
+margin_right = -257.0
+margin_bottom = -233.0
+text = "ammo"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Gun" parent="." instance=ExtResource( 2 )]

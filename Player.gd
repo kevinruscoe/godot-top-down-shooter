@@ -5,30 +5,7 @@ var acceleration_rate: int = 2000 setget set_acceleration_rate, get_acceleration
 var velocity: Vector2 = Vector2.ZERO setget set_velocity, get_velocity
 
 func _ready():
-	# semi
-	$Gun.set_spread(Vector2(400, 30))
-	$Gun.set_accuracy(0.6)
-	$Gun.set_shots_per_second(10)
-	$Gun.set_clip_size(60)
-	$Gun.set_ammo($Gun.get_clip_size())
-	$Gun.set_reload_duration(4.0)
-
-	# pistol
-	# $Gun.set_spread(Vector2(600, 20))
-	# $Gun.set_accuracy(0.9)
-	# $Gun.set_shots_per_second(1)
-	# $Gun.set_clip_size(8)
-	# $Gun.set_ammo($Gun.get_clip_size())
-	# $Gun.set_reload_duration(2.0)
-
-	# shotgun
-	# $Gun.set_spread(Vector2(100, 30))
-	# $Gun.set_accuracy(0)
-	# $Gun.set_shots_per_second(1)
-	# $Gun.set_projectiles_per_shot(6)
-	# $Gun.set_clip_size(2)
-	# $Gun.set_ammo($Gun.get_clip_size())
-	# $Gun.set_reload_duration(5.0)
+	$Gun.set_gun_type($Gun.GunTypes.SEMI_AUTO)
 
 func _physics_process(delta):
 	self._handle_movement(delta)

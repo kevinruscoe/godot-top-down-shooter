@@ -10,7 +10,7 @@ var clip_size: int = 10 setget set_clip_size, get_clip_size
 var projectiles_per_shot: int = 1.0 setget set_projectiles_per_shot, get_projectiles_per_shot
 var projectile_speed: int = 800 setget set_projectile_speed, get_projectile_speed
 var shots_per_second: float = 10.0 setget set_shots_per_second, get_shots_per_second
-var kickback: float = 200.0 setget set_kickback, get_kickback
+var kickback: float = 100.0 setget set_kickback, get_kickback
 
 var _reload_timer: Timer
 var _bullet_timer: Timer
@@ -18,6 +18,10 @@ var _should_show_target_cone: bool = true
 var _target_cone: Polygon2D
 var _target_cone_vectors: PoolVector2Array
 onready var _player = get_parent()
+
+enum GunTypes {PISTOL, SEMI_AUTO, SHOTGUN}
+
+var gun_type: int setget set_gun_type, get_gun_type
 
 func _ready():
 	self._reload_timer = Timer.new()
@@ -29,8 +33,8 @@ func _ready():
 	self._bullet_timer.set_one_shot(true)
 	self._bullet_timer.set_wait_time(self.get_shots_per_second())
 	self.add_child(self._bullet_timer)
-
-func _process(delta):
+	
+func _process(_delta):
 	self._draw_target_cone()
 	self._track_reload_lock()
 
@@ -176,3 +180,33 @@ func set_kickback(value):
 	
 func get_kickback():
 	return kickback
+
+func get_gun_type():
+	return gun_type
+
+func set_gun_type(value):
+	gun_type = value
+
+	match self.get_gun_type():
+		GunTypes.PISTOL:
+			self.set_spread(Vector2(600, 20))
+			self.set_accuracy(0.9)
+			self.set_shots_per_second(1)
+			self.set_clip_size(8)
+			self.set_ammo(8)
+			self.set_reload_duration(2.0)
+		GunTypes.SEMI_AUTO:
+			self.set_spread(Vector2(400, 30))
+			self.set_accuracy(0.6)
+			self.set_shots_per_second(10)
+			self.set_clip_size(60)
+			self.set_ammo(60)
+			self.set_reload_duration(4.0)
+		GunTypes.SHOTGUN:
+			self.set_spread(Vector2(100, 30))
+			self.set_accuracy(0)
+			self.set_shots_per_second(1)
+			self.set_projectiles_per_shot(6)
+			self.set_clip_size(2)
+			self.set_ammo(2)
+			self.set_reload_duration(5.0)

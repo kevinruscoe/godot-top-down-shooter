@@ -46,3 +46,7 @@ func get_speed():
 
 func set_speed(value):
 	speed = value
+
+func _on_Area2D_area_entered(area):
+	if area.name == "TestEnemy":
+		area.set_health(area.get_health() - 10)
